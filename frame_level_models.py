@@ -47,14 +47,6 @@ flags.DEFINE_string("video_level_classifier_model", "MoeModel",
 flags.DEFINE_integer("lstm_cells", 1024, "Number of LSTM cells.")
 flags.DEFINE_integer("lstm_layers", 2, "Number of LSTM layers.")
 
-def weight_variable(shape):
-  initial = tf.truncated_normal(shape, stddev=0.1)
-  return tf.Variable(initial)
-
-def bias_variable(shape):
-  initial = tf.constant(0.1, shape=shape)
-  return tf.Variable(initial)
-
 class FrameLevelCNNModel(models.BaseModel):
   def create_model(self, model_input, vocab_size, num_frames, **unused_params):
     """Creates a model which uses a logistic classifier over the average of the
@@ -76,13 +68,14 @@ class FrameLevelCNNModel(models.BaseModel):
       model in the 'predictions' key. The dimensions of the tensor are
       'batch_size' x 'num_classes'.
     """
-    W_conv1 = weight_variable([10,1024,256])
-    b_conv1 = bias_variable([256])
     sliced_input = tf.slice(model_input, [0,0,0],[-1,120,-1])
-    conv_output = tf.nn.relu(tf.nn.conv1D(sliced_input,W_conv1,5,'SAME') + b_conv1)
-    flattened = tf.reshape(conv_output,[-1,])
+
+
+    conv_output = slim.convolution(sliced_input, 256, [10,1024,256], 5,
+     "VALID", data_format = "NWC")
+
     output = slim.fully_connected(
-        flattened, vocab_size, activation_fn=tf.nn.sigmoid,
+        conv_output, vocab_size, activation_fn=tf.nn.sigmoid,
         weights_regularizer=slim.l2_regularizer(1e-8))
     return {"predictions": output}
 
