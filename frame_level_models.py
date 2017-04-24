@@ -79,10 +79,10 @@ class FrameLevelCNNModel(models.BaseModel):
     W_conv1 = weight_variable([10,1024,256])
     b_conv1 = bias_variable([256])
     sliced_input = tf.slice(model_input, [0,0,0],[-1,120,-1])
-    conv_output = tf.nn.relu(tf.nn.conv1D(sliced_input,W_conv1,5,'SAME') + b_conv1)
-
+    conv_output = tf.nn.relu(tf.nn.conv1d(sliced_input,W_conv1,5,'SAME') + b_conv1)
+    flattened = tf.reshape(conv_output,[batch_size,-1])
     output = slim.fully_connected(
-        conv_output, vocab_size, activation_fn=tf.nn.sigmoid,
+        flattened, vocab_size, activation_fn=tf.nn.sigmoid,
         weights_regularizer=slim.l2_regularizer(1e-8))
     return {"predictions": output}
 
