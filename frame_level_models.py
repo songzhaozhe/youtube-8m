@@ -71,7 +71,7 @@ class FrameLevelCNNModel(models.BaseModel):
     sliced_input = tf.slice(model_input, [0,0,0],[-1,120,-1])
 
 
-    conv_output = slim.convolution(sliced_input, 256, [10,1024,256], 5,
+    conv_output = slim.convolution(sliced_input, 256, [10], 5,
      "VALID", data_format = "NWC")
 
     output = slim.fully_connected(
