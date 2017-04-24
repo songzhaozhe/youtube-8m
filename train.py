@@ -31,7 +31,8 @@ from tensorflow import gfile
 from tensorflow import logging
 from tensorflow.python.client import device_lib
 import utils
-
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+  os.environ["CUDA_VISIBLE_DEVICES"] = "1,4"
 FLAGS = flags.FLAGS
 
 if __name__ == "__main__":

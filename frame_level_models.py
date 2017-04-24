@@ -47,6 +47,46 @@ flags.DEFINE_string("video_level_classifier_model", "MoeModel",
 flags.DEFINE_integer("lstm_cells", 1024, "Number of LSTM cells.")
 flags.DEFINE_integer("lstm_layers", 2, "Number of LSTM layers.")
 
+def weight_variable(shape):
+  initial = tf.truncated_normal(shape, stddev=0.1)
+  return tf.Variable(initial)
+
+def bias_variable(shape):
+  initial = tf.constant(0.1, shape=shape)
+  return tf.Variable(initial)
+
+class FrameLevelCNNModel(models.BaseModel):
+  def create_model(self, model_input, vocab_size, num_frames, **unused_params):
+    """Creates a model which uses a logistic classifier over the average of the
+    frame-level features.
+
+    This class is intended to be an example for implementors of frame level
+    models. If you want to train a model over averaged features it is more
+    efficient to average them beforehand rather than on the fly.
+
+    Args:
+      model_input: A 'batch_size' x 'max_frames' x 'num_features' matrix of
+                   input features.
+      vocab_size: The number of classes in the dataset.
+      num_frames: A vector of length 'batch' which indicates the number of
+           frames for each video (before padding).
+
+    Returns:
+      A dictionary with a tensor containing the probability predictions of the
+      model in the 'predictions' key. The dimensions of the tensor are
+      'batch_size' x 'num_classes'.
+    """
+    W_conv1 = weight_variable([10,1024,256])
+    b_conv1 = bias_variable([256])
+    sliced_input = tf.slice(model_input, [0,0,0],[-1,120,-1])
+    conv_output = tf.nn.relu(tf.nn.conv1D(sliced_input,W_conv1,5,'SAME') + b_conv1)
+
+    output = slim.fully_connected(
+        conv_output, vocab_size, activation_fn=tf.nn.sigmoid,
+        weights_regularizer=slim.l2_regularizer(1e-8))
+    return {"predictions": output}
+
+    
 class FrameLevelLogisticModel(models.BaseModel):
 
   def create_model(self, model_input, vocab_size, num_frames, **unused_params):
