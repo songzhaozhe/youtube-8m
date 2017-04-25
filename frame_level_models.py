@@ -70,10 +70,11 @@ class FrameLevelCNNModel(models.BaseModel):
     """
     sliced_input = tf.slice(model_input, [0,0,0],[-1,120,-1])
 
-
-    conv_output = slim.convolution(sliced_input, 256, [10], 5,
+    conv_output = slim.convolution(sliced_input, 512, [9], 5,
      "VALID", data_format = "NWC")
-
+    conv_output = slim.convolution(conv_output, 512, [5], 3,
+     "VALID", data_format = "NWC")    
+    conv_output = slim.flatten(conv_output)
     output = slim.fully_connected(
         conv_output, vocab_size, activation_fn=tf.nn.sigmoid,
         weights_regularizer=slim.l2_regularizer(1e-8))
@@ -112,7 +113,7 @@ class FrameLevelLogisticModel(models.BaseModel):
 
     output = slim.fully_connected(
         avg_pooled, vocab_size, activation_fn=tf.nn.sigmoid,
-        weights_regularizer=slim.l2_regularizer(1e-8))
+        weights_regularizer=slim.l2_regularizer(1e-8))   
     return {"predictions": output}
 
 class DbofModel(models.BaseModel):
