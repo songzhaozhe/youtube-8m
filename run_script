@@ -23,5 +23,11 @@ submit training $JOB_NAME \
 --train_dir=$BUCKET_NAME/yt8m_train_frame_level_logistic_model
 
 
-MODEL_DIR=/tmp/yt8m
-python train.py --train_data_pattern='/BigDisk/youtube/train*.tfrecord' --frame_features=True --model=FrameLevelCNNModel --feature_names="rgb" --feature_sizes="1024" --train_dir=$MODEL_DIR/frame_level_CNN_model --batch_size=128
+MODEL_DIR=/home/cewu/songzz/tmp/yt8m
+python train.py --train_data_pattern='/BigDisk/youtube/train*.tfrecord' --frame_features=True --model=FrameLevelCNNModel --feature_names="rgb" --feature_sizes="1024" --start_new_model True --train_dir=$MODEL_DIR/frame_level_CNN_model --batch_size=128
+
+MODEL_DIR=/home/cewu/songzz/tmp/yt8m
+python train.py --train_data_pattern='/BigDisk/youtube/train*.tfrecord' --frame_features=True --model=FrameLevelLogisticModel --feature_names="rgb" --feature_sizes="1024" --start_new_model False --train_dir=$MODEL_DIR/frame_level_Logistic_model --batch_size=128
+
+
+python train.py --train_data_pattern='/BigDisk/youtube/train*.tfrecord' --model=LogisticModel --train_dir=$MODEL_DIR/video_level_logistic_model
